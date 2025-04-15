@@ -1,23 +1,14 @@
 public class AccountTriggerHandler(){
     public static void createContactOnAccount(List<Account> accList){
+        List<Contact> contactList = new List<Contact>();
         Set<Id> accIds = new Set<Id>();
         for(Account a : accList){
-            accIds.add(a.Id);
+            if(a.Primary_Phone__c){
+                Contact c = new Contact( FirstName = a.FirstName , LastName = a.LastName, Phone = a.Phone, AccountId = a.Id);
+                contactList.add(c);
+            }
         }
 
-        List<Contact> contactList;
-
-        if(!accIds.isEmpty()){
-            contactList = [Select Id , Phone , AccountId, Account.Phone, Account.Primary_Phone__c from Contact where AccountId in : accIds];            
-        }
-
-        if(!contactList.isEmpty()){
-            for(Contact c : contactList){
-                if(c.Account.Primary_Phone__c){
-                    c.Phone = c.Account.Phone;
-                }
-            } 
-        update contactList;          
-        }
+        if(!contactList.isEmpty()) insert contactList;
     }
 }
